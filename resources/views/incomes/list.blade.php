@@ -17,7 +17,8 @@ $(function () {
       'searching'   : false,
       'ordering'    : true,
       'info'        : true,
-      'autoWidth'   : false
+      'autoWidth'   : false,
+      'responsive'  : true
   });
 });
 </script>
@@ -37,6 +38,7 @@ $(function () {
                           <tr>
                               <th>Fecha</th>
                               <th>Descripción</th>
+                              <th>Monto</th>
                               <th>Categoría</th>
                               <th>Acciones</th>
                           </tr>
@@ -45,6 +47,7 @@ $(function () {
                           <tr>
                               <th>Fecha</th>
                               <th>Descripción</th>
+                              <th>Monto</th>
                               <th>Categoría</th>
                               <th>Acciones</th>
                           </tr>

@@ -27,6 +27,13 @@ class Category extends Model
 
     public function categoryType()
     {
-        return $this->hasOne('App\CategoryType', 'category_type_id');
+        return $this->hasOne('App\CategoryType', 'id', 'category_type_id');
+    }
+
+    public function scopeWithCategoryType($query, $name)
+    {
+        return $query->whereHas(['category_types' => function($q) use($name){
+            $q->where('category_type', $name);
+        }]);
     }
 }

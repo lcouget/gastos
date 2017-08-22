@@ -16,6 +16,7 @@ Route::get('/', function () {
 });
 
 Route::get('/ingreso/listar', 'IncomeController@index');
+Route::any('/ingreso/agregar', 'IncomeController@add');
 
 Auth::routes();
 

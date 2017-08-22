@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Income;
+use App\Category;
+use Validator;
 
 class IncomeController extends Controller
 {
@@ -26,16 +28,14 @@ class IncomeController extends Controller
      */
     public function rules()
     {
+        $doubleRegex = "/^(?=.+)(?:[1-9]\d*|0)?(?:\.\d+)?$/";
+
         return [
-            'title' => 'required|unique:posts|max:255',
-            'body' => 'required',
+            'income_date' => 'required|date',
+            'amount' => 'required',
         ];
     }
 
-    protected function validator($data)
-    {
-        return Validator::make($data, $this->rules());
-    }
 
     /**
      * Show the application dashboard.
@@ -45,41 +45,60 @@ class IncomeController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $incomes = Income::where('user_id', '=', $user->id)->with('category')->get();
-        return view('incomes.list', $incomes);
+        $incomes = Income::where('user_id', $user->id)->with('category')->get();
+
+        return view('incomes.list', compact('incomes'));
     }
 
-    protected function create(Request $request)
+    protected function add(Request $request)
     {
         if ($request->isMethod('get')) {
-            return viev('incomes.create');
+            //carga de formulario de
+            $categories = Category::with('categoryType')
+                ->where('active', 1)
+                ->where('category_type_id', 1) // toDo: ver como filtrar bien por nombre de categoria
+                ->orderBy('category')
+                ->get();
+
+            return view('incomes.add', compact('categories'));
+        } else {
+            $data = $request->all();
+            $incomeDate = explode('/', $data['income_date']);
+            $data['income_date'] = $incomeDate[2] . '-' . $incomeDate[1] . '-' . $incomeDate[0];
+
+            $data['amount'] = doubleval($data['amount']);
+
+            $validator = Validator::make($data, $this->rules());
+
+            if ($validator->fails()) {
+                return redirect('ingreso/agregar')
+                    ->withErrors($validator)
+                    ->withInput();
+            }
+
+            $data['user_id'] = Auth::user()->id;
+            $income = Income::create($data);
+
+            if (empty($income)) {
+              $error = [
+                  //toDo: hacer errores
+              ];
+              return redirect('ingreso/agregar')
+                  ->withErrors($error)
+                  ->withInput();
+            }
+
+            return redirect('ingreso/listar'); // toDo: ver mensajes de success
         }
     }
 
-    protected function store(Request $request)
+    protected function edit (Request $request, $id)
     {
-        $data = $request->all();
-        $validator = $this->validator($data);
+        //ToDo...
+    }
 
-        if ($validator->fails()) {
-            return redirect('incomes/list')
-                ->withErrors($validator)
-                ->withInput();
-        }
-
-        $user = Auth::user();
-        $income = Income::create($data);
-        $income->user()->save($user);
-
-        if (empty($income)) {
-
-          $error = [
-              //toDo: hacer errores
-          ];
-          return redirect('incomes/list')
-              ->withErrors($error)
-              ->withInput();
-        }
-
+    protected function delete (Request $request, $id)
+    {
+        //ToDo...
     }
 }

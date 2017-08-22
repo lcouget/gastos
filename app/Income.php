@@ -28,7 +28,7 @@ class Income extends Model
 
     public function category()
     {
-        return $this->hasOne('App\Category', 'category_id')->where("category", "ingreso");
+        return $this->hasOne('App\Category', 'id', 'category_id'); // Todo... mejorar esta busqueda
     }
 
     public function user()
