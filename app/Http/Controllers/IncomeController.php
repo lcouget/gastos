@@ -47,6 +47,11 @@ class IncomeController extends Controller
         $user = Auth::user();
         $incomes = Income::where('user_id', $user->id)->with('category')->get();
 
+        foreach ($incomes as $income) {
+            $income->income_date_formatted = date('d-M', strtotime($income->income_date));
+            $income->amount_formatted = number_format($income->amount, 2, ',', '.');
+        }
+
         return view('incomes.list', compact('incomes'));
     }
 
@@ -62,14 +67,32 @@ class IncomeController extends Controller
 
             return view('incomes.add', compact('categories'));
         } else {
+            
             $data = $request->all();
+            
+            //validaciones
+            if (empty($data['category_id'])) {
+                $request->session()->flash('alert-danger', 'Se debe especificar la categoría.');
+                return back()->withInput();
+            }
+
+            if (empty($data['income_date'])) {
+                $request->session()->flash('alert-danger', 'Se debe especificar la fecha de ingreso.');
+                return back()->withInput();
+            }
+
+            if (empty($data['amount'])) {
+                $request->session()->flash('alert-danger', 'Se debe especificar el monto a ingresar.');
+                return back()->withInput();
+            }
+
+            //seteo de fecha...
             $incomeDate = explode('/', $data['income_date']);
             $data['income_date'] = $incomeDate[2] . '-' . $incomeDate[1] . '-' . $incomeDate[0];
-
+            
             $data['amount'] = doubleval($data['amount']);
 
             $validator = Validator::make($data, $this->rules());
-
             if ($validator->fails()) {
                 return redirect('ingreso/agregar')
                     ->withErrors($validator)
@@ -81,24 +104,100 @@ class IncomeController extends Controller
 
             if (empty($income)) {
               $error = [
-                  //toDo: hacer errores
+                 'msg' => 'Se ha producido un error inesperado. Por favor vuelva a intentarlo.'
               ];
-              return redirect('ingreso/agregar')
+              return back()
                   ->withErrors($error)
                   ->withInput();
             }
 
-            return redirect('ingreso/listar'); // toDo: ver mensajes de success
+            $request->session()->flash('alert-success', 'Se ha agregado el ingreso satisfactoriamente.');
+            return redirect('ingreso/listar');
         }
     }
 
+    /**
+     * { function_description }
+     *
+     * @param      \Illuminate\Http\Request  $request  The request
+     * @param      <type>                    $id       The identifier
+     */
     protected function edit (Request $request, $id)
     {
-        //ToDo...
+        if ($request->isMethod('get')) {
+            
+            $income = Income::where('id', $id)->first(); 
+
+            $categories = Category::with('categoryType')
+                ->where('active', 1)
+                ->where('category_type_id', 1) // toDo: ver como filtrar bien por nombre de categoria
+                ->orderBy('category')
+                ->get();
+
+            return view('incomes.edit', compact('categories', 'income'));
+        } else {
+            $data = $request->all();
+            
+            //validaciones
+            if (empty($data['category_id'])) {
+                $request->session()->flash('alert-danger', 'Se debe especificar la categoría.');
+                return back()->withInput();
+            }
+
+            if (empty($data['income_date'])) {
+                $request->session()->flash('alert-danger', 'Se debe especificar la fecha de ingreso.');
+                return back()->withInput();
+            }
+
+            if (empty($data['amount'])) {
+                $request->session()->flash('alert-danger', 'Se debe especificar el monto a ingresar.');
+                return back()->withInput();
+            }
+
+            //seteo de fecha...
+            $incomeDate = explode('/', $data['income_date']);
+            $data['income_date'] = $incomeDate[2] . '-' . $incomeDate[1] . '-' . $incomeDate[0];
+            
+            $data['amount'] = doubleval($data['amount']);
+
+            $validator = Validator::make($data, $this->rules());
+            if ($validator->fails()) {
+                return redirect('ingreso/agregar')
+                    ->withErrors($validator)
+                    ->withInput();
+            }
+
+            $data['user_id'] = Auth::user()->id;
+            $income = Income::where('id', $id)->first()->update($data);
+
+            if (empty($income)) {
+              $error = [
+                 'msg' => 'Se ha producido un error inesperado. Por favor vuelva a intentarlo.'
+              ];
+              return back()
+                  ->withErrors($error)
+                  ->withInput();
+            }
+
+            $request->session()->flash('alert-success', 'Se ha modificado el ingreso satisfactoriamente.');
+            return redirect('ingreso/listar');
+        }
     }
 
+    /**
+     * { function_description }
+     *
+     * @param      \Illuminate\Http\Request  $request  The request
+     * @param      <type>                    $id       The identifier
+     *
+     * @return     <type>                    ( description_of_the_return_value )
+     */
     protected function delete (Request $request, $id)
     {
-        //ToDo...
+        $income = Income::where('id', $id)->first();
+        $income->delete();
+
+        $request->session()->flash('alert-success', 'Se ha borrado el ingreso satisfactoriamente.');
+        return redirect('ingreso/listar');
     }
 }

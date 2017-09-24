@@ -1,0 +1,18 @@
+
+@media only screen and (max-width: 900px) {
+    .desktop-only{
+        display: none;
+    }
+    .mobile-only{
+        display: block;
+    }
+}
+
+@media only screen and (min-width: 901px) {
+    .desktop-only{
+        display: block;
+    }
+    .mobile-only{
+        display: none;
+    }
+}

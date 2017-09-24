@@ -35,6 +35,7 @@
     <div class="row">
         <div class="col-sm-12">
             <div class="box">
+                @include('layouts.messages')
                 <div class="box-header">
                     <h3 class="box-title">Agregar Ingreso</h3>
                 </div>
@@ -56,7 +57,7 @@
                                     <div class="input-group-addon">
                                         <i class="fa fa-calendar"></i>
                                     </div>
-                                    <input type="text" class="form-control pull-right" id="income_date" name="income_date">
+                                    <input type="text" class="form-control pull-right" id="income_date" name="income_date" placeholder="dd/mm/aaaa">
                                 </div>
                             </div>
                             <div class="form-group">
@@ -78,7 +79,7 @@
                         </div>
                     </div>
                     <div class="box-footer">
-                        <button type="submit" class="btn btn-default">Cancelar</button>
+                        <a class="btn btn-default" href="{{ url('/ingreso/listar') }}">Cancelar</a>
                         <button type="submit" class="btn btn-info pull-right">Agregar</button>
                     </div>
                     {{ csrf_field() }}
