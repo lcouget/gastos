@@ -25,9 +25,9 @@ class Expense extends Model
         //
     ];
 
-    public function categoryType()
+    public function category()
     {
-        return $this->hasOne('App\Category', 'category_id');
+        return $this->hasOne('App\Category', 'id', 'category_id');
     }
 
     public function user()
