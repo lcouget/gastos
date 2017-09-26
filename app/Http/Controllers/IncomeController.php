@@ -128,6 +128,9 @@ class IncomeController extends Controller
             
             $income = Income::where('id', $id)->first(); 
 
+            $incomeDate = explode('-', $income->income_date);
+            $income->income_date_formatted = $incomeDate[2] . '/' . $incomeDate[1] . '/' . $incomeDate[0];
+
             $categories = Category::with('categoryType')
                 ->where('active', 1)
                 ->where('category_type_id', 1) // toDo: ver como filtrar bien por nombre de categoria
@@ -156,8 +159,8 @@ class IncomeController extends Controller
 
             //seteo de fecha...
             $incomeDate = explode('/', $data['income_date']);
-            $data['income_date'] = $incomeDate[2] . '-' . $incomeDate[1] . '-' . $incomeDate[0];
             
+            $data['income_date'] = $incomeDate[2] . '-' . $incomeDate[1] . '-' . $incomeDate[0];
             $data['amount'] = doubleval($data['amount']);
 
             $validator = Validator::make($data, $this->rules());
@@ -168,9 +171,11 @@ class IncomeController extends Controller
             }
 
             $data['user_id'] = Auth::user()->id;
-            $income = Income::where('id', $id)->first()->update($data);
+            $income = Income::where('id', $id)->first();
 
-            if (empty($income)) {
+            if (!empty($income)) {
+                $income->update($data);
+            } else {
               $error = [
                  'msg' => 'Se ha producido un error inesperado. Por favor vuelva a intentarlo.'
               ];

@@ -31,6 +31,8 @@ $(function () {
                 @include('layouts.messages')
                 <div class="box-header">
                     <h3 class="box-title">Listado de ingresos</h3>
+                    &nbsp;&nbsp;
+                    <a href="{{ url('/ingreso/agregar') }}" class="btn btn-default btn-xs btn-flat"><i class="fa fa-plus"></i> Agregar </a>
                 </div>
                 <div class="box-body">
                     <table id="table" class="table table-bordered table-hover">
