@@ -121,7 +121,7 @@ return [
         ],
         [
             'text' => 'Resumen del mes',
-            'url'  => 'gasto/listar',
+            'url'  => 'reportes/resumen/mes',
             'icon' => 'area-chart',
         ],
         'Principal',
@@ -162,7 +162,7 @@ return [
             'text'    => 'Gráficos',
             'icon'    => 'bar-chart',
         ],
-        'Cuenta',
+        /*'Cuenta',
         [
             'text' => 'Perfil',
             'url'  => 'admin/settings',
@@ -172,7 +172,7 @@ return [
             'text' => 'Cambiar Password',
             'url'  => 'admin/settings',
             'icon' => 'lock',
-        ],
+        ],*/
         /*'LABELS',
         [
             'text'       => 'Important',

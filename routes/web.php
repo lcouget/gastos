@@ -31,6 +31,9 @@ Route::get('/gasto/editar/{id}', 'ExpenseController@edit');
 Route::post('/gasto/editar/{id}', 'ExpenseController@edit');
 Route::get('/gasto/borrar/{id}', 'ExpenseController@delete');
 
+//reportes
+Route::get('reportes/resumen/mes', 'ReportController@monthList');
+
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
