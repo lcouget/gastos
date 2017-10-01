@@ -6,10 +6,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Income;
 use App\Category;
+use Jenssegers\Agent\Agent;
 use Validator;
 
 class IncomeController extends Controller
 {
+    private $agent;
+    private $isMobile;
+
     /**
      * Create a new controller instance.
      *
@@ -18,6 +22,9 @@ class IncomeController extends Controller
 
     public function __construct()
     {
+        $this->agent = new Agent();
+        $this->isMobile = ($this->agent->isMobile() || $this->agent->isTablet()) ? 1 : 0;
+
         $this->middleware('auth');
     }
 
@@ -45,6 +52,7 @@ class IncomeController extends Controller
     public function index()
     {
         $user = Auth::user();
+        $isMobile = $this->isMobile;
         $incomes = Income::where('user_id', $user->id)->with('category')->get();
 
         foreach ($incomes as $income) {
@@ -52,7 +60,7 @@ class IncomeController extends Controller
             $income->amount_formatted = number_format($income->amount, 2, ',', '.');
         }
 
-        return view('incomes.list', compact('incomes'));
+        return view('incomes.list', compact('incomes', 'isMobile'));
     }
 
     protected function add(Request $request)
@@ -65,11 +73,13 @@ class IncomeController extends Controller
                 ->orderBy('category')
                 ->get();
 
-            return view('incomes.add', compact('categories'));
+            $isMobile = $this->isMobile;
+
+            return view('incomes.add', compact('categories', 'isMobile'));
         } else {
-            
+
             $data = $request->all();
-            
+
             //validaciones
             if (empty($data['category_id'])) {
                 $request->session()->flash('alert-danger', 'Se debe especificar la categoría.');
@@ -87,9 +97,11 @@ class IncomeController extends Controller
             }
 
             //seteo de fecha...
-            $incomeDate = explode('/', $data['income_date']);
-            $data['income_date'] = $incomeDate[2] . '-' . $incomeDate[1] . '-' . $incomeDate[0];
-            
+            if (!$this->isMobile) {
+                $incomeDate = explode('/', $data['income_date']);
+                $data['income_date'] = $incomeDate[2] . '-' . $incomeDate[1] . '-' . $incomeDate[0];
+            }
+
             $data['amount'] = doubleval($data['amount']);
 
             $validator = Validator::make($data, $this->rules());
@@ -125,8 +137,8 @@ class IncomeController extends Controller
     protected function edit (Request $request, $id)
     {
         if ($request->isMethod('get')) {
-            
-            $income = Income::where('id', $id)->first(); 
+
+            $income = Income::where('id', $id)->first();
 
             $incomeDate = explode('-', $income->income_date);
             $income->income_date_formatted = $incomeDate[2] . '/' . $incomeDate[1] . '/' . $incomeDate[0];
@@ -137,10 +149,12 @@ class IncomeController extends Controller
                 ->orderBy('category')
                 ->get();
 
-            return view('incomes.edit', compact('categories', 'income'));
+            $isMobile = $this->isMobile;
+
+            return view('incomes.edit', compact('categories', 'income', 'isMobile'));
         } else {
             $data = $request->all();
-            
+
             //validaciones
             if (empty($data['category_id'])) {
                 $request->session()->flash('alert-danger', 'Se debe especificar la categoría.');
@@ -158,9 +172,11 @@ class IncomeController extends Controller
             }
 
             //seteo de fecha...
-            $incomeDate = explode('/', $data['income_date']);
-            
-            $data['income_date'] = $incomeDate[2] . '-' . $incomeDate[1] . '-' . $incomeDate[0];
+             if (!$this->isMobile) {
+                $incomeDate = explode('/', $data['income_date']);
+                $data['income_date'] = $incomeDate[2] . '-' . $incomeDate[1] . '-' . $incomeDate[0];
+            }
+
             $data['amount'] = doubleval($data['amount']);
 
             $validator = Validator::make($data, $this->rules());

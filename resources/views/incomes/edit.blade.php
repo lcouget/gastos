@@ -1,7 +1,6 @@
 @extends('adminlte::page')
 @section('title', 'Gastos - Agregar Ingreso')
 @section('content_header')
-    <h1>Ingresos</h1>
 @stop
 
 @section('css')
@@ -16,17 +15,18 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/js/bootstrap-datepicker.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/locales/bootstrap-datepicker.es.min.js"></script>
 <script type="text/javascript">
-  $(function() {
-    $(".select2").select2();
-    $('#income_date').datepicker({
-        format: "dd/mm/yyyy",
-        autoclose: true,
-        clearBtn: true,
-        language: "es",
-        todayHighlight: true,
-        todayBtn:true
-     });
-  });
+    var isMobile = {{ ($isMobile) }};
+    $(function() {
+            $(".select2").select2();
+            $('#income_date').datepicker({
+                format: "dd/mm/yyyy",
+                autoclose: true,
+                clearBtn: true,
+                language: "es",
+                todayHighlight: true,
+                todayBtn:true
+             });
+    });
 </script>
 @stop
 
@@ -57,7 +57,11 @@
                                     <div class="input-group-addon">
                                         <i class="fa fa-calendar"></i>
                                     </div>
-                                    <input type="text" class="form-control pull-right" id="income_date" name="income_date" placeholder="dd/mm/aaaa" value="{{ $income->income_date_formatted }}">
+                                    @if($isMobile)
+                                        <input type="date" class="form-control pull-right" id="income_date" name="income_date" placeholder="dd/mm/aaaa" value="{{ $income->income_date }}">
+                                    @else
+                                        <input type="text" class="form-control pull-right" id="income_date" name="income_date" placeholder="dd/mm/aaaa" value="{{ $income->income_date_formatted }}">
+                                    @endif
                                 </div>
                             </div>
                             <div class="form-group">
@@ -73,7 +77,7 @@
                                 <label>Monto</label>
                                 <div class="input-group">
                                     <span class="input-group-addon">$</span>
-                                    <input type="text" class="form-control" id="amount" name="amount" placeholder="1234,56" value="{{ $income->amount }}">
+                                    <input type="number" class="form-control" min="0" step="0.01" id="amount" name="amount" placeholder="1234.56" value="{{ $income->amount }}">
                                 </div>
                             </div>
                         </div>

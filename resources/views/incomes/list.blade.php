@@ -1,7 +1,6 @@
 @extends('adminlte::page')
 @section('title', 'Gastos - Ingresos')
 @section('content_header')
-    <h1>Ingresos</h1>
 @stop
 
 @section('css')
@@ -17,7 +16,8 @@ $(function () {
       'ordering'    : true,
       'info'        : true,
       'autoWidth'   : false,
-      'responsive'  : true
+      'responsive'  : true,
+      'order': [[ 0, 'desc' ]]
   });
 });
 </script>
@@ -60,7 +60,7 @@ $(function () {
                         @isset($incomes)
                           @foreach ($incomes as $income)
                           <tr>
-                              <td>{{ $income->income_date_formatted }}</td>
+                              <td><span class="hidden">{{ $income->income_date }}</span>{{ $income->income_date_formatted }}</td>
                               <td class="desktop-only">{{ $income->description }}</td>
                               <td class="mobile-only">{{ $income->description }}</td>
                               <td>$ {{ $income->amount_formatted }}</td>

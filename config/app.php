@@ -180,6 +180,8 @@ return [
 	    JeroenNoten\LaravelAdminLte\ServiceProvider::class,
         //Importer de Excel
         Maatwebsite\Excel\ExcelServiceProvider::class,
+        //agent detect
+        Jenssegers\Agent\AgentServiceProvider::class,
     ],
 
     /*
@@ -229,6 +231,7 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+        'Agent' => Jenssegers\Agent\Facades\Agent::class,
 
     ],
 

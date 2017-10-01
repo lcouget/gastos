@@ -1,7 +1,6 @@
 @extends('adminlte::page')
-@section('title', 'Gastos - Agregar Ingreso')
+@section('title', 'Gastos - Agregar Gasto')
 @section('content_header')
-    <h1>Gastos</h1>
 @stop
 
 @section('css')
@@ -16,16 +15,20 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/js/bootstrap-datepicker.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/locales/bootstrap-datepicker.es.min.js"></script>
 <script type="text/javascript">
+  var isMobile = {{ ($isMobile) }};
+
   $(function() {
-    $(".select2").select2();
-    $('#expense_date').datepicker({
-        format: "dd/mm/yyyy",
-        autoclose: true,
-        clearBtn: true,
-        language: "es",
-        todayHighlight: true,
-        todayBtn:true
-     });
+        $(".select2").select2();
+        if (!isMobile ) {
+            $('#expense_date').datepicker({
+                format: "dd/mm/yyyy",
+                autoclose: true,
+                clearBtn: true,
+                language: "es",
+                todayHighlight: true,
+                todayBtn:true
+             });
+        }
   });
 </script>
 @stop
@@ -57,7 +60,11 @@
                                     <div class="input-group-addon">
                                         <i class="fa fa-calendar"></i>
                                     </div>
-                                    <input type="text" class="form-control pull-right" id="expense_date" name="expense_date" placeholder="dd/mm/aaaa">
+                                    @if($isMobile)
+                                        <input type="date" class="form-control pull-right" id="expense_date" name="expense_date" placeholder="dd/mm/aaaa" value="{{ old('expense_date') }}">
+                                    @else
+                                        <input type="text" class="form-control pull-right" id="expense_date" name="expense_date" placeholder="dd/mm/aaaa" value="{{ old('expense_date') }}">
+                                    @endif
                                 </div>
                             </div>
                             <div class="form-group">
@@ -66,14 +73,14 @@
                                   <div class="input-group-addon">
                                       <i class="fa fa-book"></i>
                                   </div>
-                                    <input type="text" class="form-control" id="description" name="description" placeholder="opcional">
+                                    <input type="text" class="form-control" id="description" name="description" placeholder="opcional" value="{{ old('description') }}">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label>Monto</label>
                                 <div class="input-group">
                                     <span class="input-group-addon">$</span>
-                                    <input type="text" class="form-control" id="amount" name="amount" placeholder="1234,56">
+                                    <input type="number" class="form-control" min="0" step="0.01" id="amount" name="amount" placeholder="1234.56" value="{{ old('amount') }}">
                                 </div>
                             </div>
                         </div>

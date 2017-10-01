@@ -6,10 +6,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Expense;
 use App\Category;
+use Jenssegers\Agent\Agent;
 use Validator;
 
 class ExpenseController extends Controller
 {
+    private $agent;
+    private $isMobile;
+
     /**
      * Create a new controller instance.
      *
@@ -18,6 +22,9 @@ class ExpenseController extends Controller
 
     public function __construct()
     {
+        $this->agent = new Agent();
+        $this->isMobile = ($this->agent->isMobile() || $this->agent->isTablet()) ? 1 : 0;
+
         $this->middleware('auth');
     }
 
@@ -45,14 +52,15 @@ class ExpenseController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $expenses = Expense::where('user_id', $user->id)->with('category')->get();
+        $isMobile = $this->isMobile;
+        $expenses = Expense::where('user_id', $user->id)->with('category')->orderBy('expense_date', 'asc')->get();
 
         foreach ($expenses as $expense) {
-            $expense->expense_date_formatted = date('d-M', strtotime($expense->expense_date));
+            $expense->expense_date_formatted = date('d/m', strtotime($expense->expense_date));
             $expense->amount_formatted = number_format($expense->amount, 2, ',', '.');
         }
 
-        return view('expenses.list', compact('expenses'));
+        return view('expenses.list', compact('expenses','isMobile'));
     }
 
     protected function add(Request $request)
@@ -65,11 +73,13 @@ class ExpenseController extends Controller
                 ->orderBy('category')
                 ->get();
 
-            return view('expenses.add', compact('categories'));
+            $isMobile = $this->isMobile;
+
+            return view('expenses.add', compact('categories', 'isMobile'));
         } else {
-            
+
             $data = $request->all();
-            
+
             //validaciones
             if (empty($data['category_id'])) {
                 $request->session()->flash('alert-danger', 'Se debe especificar la categoría.');
@@ -87,9 +97,11 @@ class ExpenseController extends Controller
             }
 
             //seteo de fecha...
-            $expenseDate = explode('/', $data['expense_date']);
-            $data['expense_date'] = $expenseDate[2] . '-' . $expenseDate[1] . '-' . $expenseDate[0];
-            
+            if (!$this->isMobile) {
+                $expenseDate = explode('/', $data['expense_date']);
+                $data['expense_date'] = $expenseDate[2] . '-' . $expenseDate[1] . '-' . $expenseDate[0];
+            }
+
             $data['amount'] = doubleval($data['amount']);
 
             $validator = Validator::make($data, $this->rules());
@@ -125,8 +137,8 @@ class ExpenseController extends Controller
     protected function edit(Request $request, $id)
     {
         if ($request->isMethod('get')) {
-            
-            $expense = Expense::where('id', $id)->first(); 
+
+            $expense = Expense::where('id', $id)->first();
 
             $expenseDate = explode('-', $expense->expense_date);
             $expense->expense_date_formatted = $expenseDate[2] . '/' . $expenseDate[1] . '/' . $expenseDate[0];
@@ -137,10 +149,12 @@ class ExpenseController extends Controller
                 ->orderBy('category')
                 ->get();
 
-            return view('expenses.edit', compact('categories', 'expense'));
+            $isMobile = $this->isMobile;
+
+            return view('expenses.edit', compact('categories', 'expense', 'isMobile'));
         } else {
             $data = $request->all();
-            
+
             //validaciones
             if (empty($data['category_id'])) {
                 $request->session()->flash('alert-danger', 'Se debe especificar la categoría.');
@@ -158,9 +172,11 @@ class ExpenseController extends Controller
             }
 
             //seteo de fecha...
-            $expenseDate = explode('/', $data['expense_date']);
-            
-            $data['expense_date'] = $expenseDate[2] . '-' . $expenseDate[1] . '-' . $expenseDate[0];
+            if (!$this->isMobile) {
+                $expenseDate = explode('/', $data['expense_date']);
+                $data['expense_date'] = $expenseDate[2] . '-' . $expenseDate[1] . '-' . $expenseDate[0];
+            }
+
             $data['amount'] = doubleval($data['amount']);
 
             $validator = Validator::make($data, $this->rules());

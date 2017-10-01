@@ -1,7 +1,6 @@
 @extends('adminlte::page')
 @section('title', 'Gastos - Gastos')
 @section('content_header')
-    <h1>Gastos</h1>
 @stop
 
 @section('css')
@@ -17,7 +16,8 @@ $(function () {
       'ordering'    : true,
       'info'        : true,
       'autoWidth'   : false,
-      'responsive'  : true
+      'responsive'  : true,
+      'order': [[ 0, 'desc' ]]
   });
 });
 </script>
@@ -43,7 +43,7 @@ $(function () {
                               <th class="mobile-only">Desc.</th>
                               <th>Monto</th>
                               <th class="desktop-only">Categoría</th>
-                              <th>Acciones</th>
+                              <th>Acción</th>
                           </tr>
                       </thead>
                       <tfoot class="center">
@@ -53,14 +53,14 @@ $(function () {
                               <th class="mobile-only">Desc.</th>
                               <th>Monto</th>
                               <th class="desktop-only">Categoría</th>
-                              <th>Acciones</th>
+                              <th>Acción</th>
                           </tr>
                       </tfoot>
                       <tbody class="center">
                         @isset($expenses)
                           @foreach ($expenses as $expense)
                           <tr>
-                              <td>{{ $expense->expense_date_formatted }}</td>
+                              <td><span class="hidden">{{ $expense->expense_date }}</span>{{ $expense->expense_date_formatted }}</td>
                               <td class="desktop-only">{{ $expense->description }}</td>
                               <td class="mobile-only">{{ $expense->description }}</td>
                               <td>$ {{ $expense->amount_formatted }}</td>

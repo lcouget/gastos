@@ -16,16 +16,21 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/js/bootstrap-datepicker.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/locales/bootstrap-datepicker.es.min.js"></script>
 <script type="text/javascript">
+  var isMobile = {{ ($isMobile) }};
+
   $(function() {
     $(".select2").select2();
-    $('#expense_date').datepicker({
-        format: "dd/mm/yyyy",
-        autoclose: true,
-        clearBtn: true,
-        language: "es",
-        todayHighlight: true,
-        todayBtn:true
-     });
+
+    if (!isMobile ) {
+        $('#expense_date').datepicker({
+            format: "dd/mm/yyyy",
+            autoclose: true,
+            clearBtn: true,
+            language: "es",
+            todayHighlight: true,
+            todayBtn:true
+         });
+    }
   });
 </script>
 @stop
@@ -57,7 +62,11 @@
                                     <div class="input-group-addon">
                                         <i class="fa fa-calendar"></i>
                                     </div>
-                                    <input type="text" class="form-control pull-right" id="expense_date" name="expense_date" placeholder="dd/mm/aaaa" value="{{ $expense->expense_date_formatted }}">
+                                    @if($isMobile)
+                                        <input type="date" class="form-control pull-right" id="expense_date" name="expense_date" placeholder="dd/mm/aaaa" value="{{ $expense->expense_date }}">
+                                    @else
+                                        <input type="text" class="form-control pull-right" id="expense_date" name="expense_date" placeholder="dd/mm/aaaa" value="{{ $expense->expense_date_formatted }}">
+                                    @endif
                                 </div>
                             </div>
                             <div class="form-group">
@@ -73,7 +82,7 @@
                                 <label>Monto</label>
                                 <div class="input-group">
                                     <span class="input-group-addon">$</span>
-                                    <input type="text" class="form-control" id="amount" name="amount" placeholder="1234,56" value="{{ $expense->amount }}">
+                                    <input type="number" class="form-control" min="0" step="0.01" id="amount" name="amount" placeholder="1234.56" value="{{ $expense->amount }}">
                                 </div>
                             </div>
                         </div>
